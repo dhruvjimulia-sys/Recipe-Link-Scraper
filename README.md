@@ -8,3 +8,5 @@ In order to install these dependencies, execute the following commands on the co
 `pip install beautifulsoup4`
 
 `pip install lxml`
+
+`pip install requests`
