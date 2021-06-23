@@ -22,8 +22,53 @@ categories = [
 'https://www.allrecipes.com/recipes/86/world-cuisine/'
 ]
 
-print(categories)
+links = set()
 
+for category_link in range(1):
+    html_text = requests.get('https://www.allrecipes.com/recipes/76/appetizers-and-snacks/').text
+    soup = BeautifulSoup(html_text, 'lxml')
+    outerDiv = soup.find_all('div', class_='card__imageContainer')
+    for div in outerDiv: 
+        link = div.find('a', class_='card__titleLink manual-link-behavior')['href']
+        if link.find("/recipe/") != -1:
+            print(link)
+            links.add(link)
 
-# html_text = requests.get('https://www.allrecipes.com/recipes/').text
-# soup = BeautifulSoup(html_text, 'lxml')
+    outerDiv2 = soup.find_all('div', class_='category-page-item-content-wrapper')
+    for div in outerDiv2:
+        link = div.find('a', class_='category-page-item-image-text')['href']
+        if link.find("/recipe/") != -1:
+            print(link)
+            links.add(link)
+
+    pageNumber = 2
+    response = requests.get('https://www.allrecipes.com/recipes/76/appetizers-and-snacks/' + '?page=' + str(pageNumber))
+    while response.status_code == 200:
+        print(pageNumber)
+        html_text = response.text
+        soup = BeautifulSoup(html_text, 'lxml')
+        allLinks = soup.find_all('a', class_='tout__imageLink')
+        for aTag in allLinks:
+            link = aTag['href']
+            links.add(link)
+            print(link)
+        pageNumber = pageNumber + 1
+        response = requests.get('https://www.allrecipes.com/recipes/76/appetizers-and-snacks/' + '?page=' + str(pageNumber))
+
+print(links)
+print(len(links))
+
+def extractFirstPage(soup):
+    outerDiv = soup.find_all('div', class_='card__imageContainer')
+    for div in outerDiv: 
+        link = div.find('a', class_='card__titleLink manual-link-behavior')['href']
+        if link.find("/recipe/") != -1:
+            print(link)
+            links.add(link)
+
+    outerDiv2 = soup.find_all('div', class_='category-page-item-content-wrapper')
+    for div in outerDiv2:
+        link = div.find('a', class_='category-page-item-image-text')['href']
+        if link.find("/recipe/") != -1:
+            print(link)
+            links.add(link)
