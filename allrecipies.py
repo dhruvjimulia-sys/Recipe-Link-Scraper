@@ -22,43 +22,75 @@ categories = [
 'https://www.allrecipes.com/recipes/86/world-cuisine/'
 ]
 
-def addLinkToFile(link, filename):
-    with open(filename, 'a') as f:
-        f.write(link + ' \n')
+headers = {'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.75 Safari/537.36'}
 
-links = set()
+def readLinks():
+    with open('link-lists/allrecipies.txt', 'r') as file:
+        readLinks = file.readlines()
+        return set([x.strip() for x in readLinks]) 
 
-for index, category_link in enumerate(categories):
-    print(1, len(links))
-    html_text = requests.get(category_link).text
+links = readLinks()
+
+def addLinksToFile():
+    with open('link-lists/allrecipies.txt', 'w') as file:
+        for link in links:
+            file.write(link + ' \n')
+
+def showProgress(index, pageNumber):
+    print(index, pageNumber, len(links))
+    with open('link-lists/allrecipies_progress.txt', 'w') as file:
+        file.write(f"{index} {pageNumber}")
+
+def readProgress():    
+    with open('link-lists/allrecipies_progress.txt', 'r') as file:
+        progress_string = file.read()
+        progress_list = progress_string.split()
+        index = int(progress_list[0])
+        pageNumber = int(progress_list[1])
+        return [index, pageNumber]
+
+def extractFirstPage(category_link):
+    html_text = requests.get(category_link, headers=headers).text
     soup = BeautifulSoup(html_text, 'lxml')
+
     outerDiv = soup.find_all('div', class_='card__imageContainer')
     for div in outerDiv: 
         link = div.find('a', class_='card__titleLink manual-link-behavior')['href']
         if link.find("/recipe/") != -1:
-            addLinkToFile(link, 'link-lists/allrecipies_' + str(index) + '.txt')
             links.add(link)
-
     outerDiv2 = soup.find_all('div', class_='category-page-item-content-wrapper')
     for div in outerDiv2:
         link = div.find('a', class_='category-page-item-image-text')['href']
         if link.find("/recipe/") != -1:
-            addLinkToFile(link, 'link-lists/allrecipies_' + str(index) + '.txt')
             links.add(link)
 
-    pageNumber = 2
+progress = readProgress()
+startIndex = progress[0]
+startPageNumber = progress[1]
+
+for index, category_link in enumerate(categories):
+    if (index < startIndex):
+        continue
+
+    pageNumber = startPageNumber
+
+    if (pageNumber == 1):
+        extractFirstPage(category_link)
+        addLinksToFile()
+        showProgress(index, pageNumber)
+        pageNumber = 2
+
     response = requests.get('https://www.allrecipes.com/recipes/76/appetizers-and-snacks/' + '?page=' + str(pageNumber))
     while response.status_code == 200:
-        print(pageNumber, len(links))
         html_text = response.text
         soup = BeautifulSoup(html_text, 'lxml')
         allLinks = soup.find_all('a', class_='tout__imageLink')
         for aTag in allLinks:
             link = 'https://www.allrecipes.com/' + aTag['href']
             links.add(link)
-            addLinkToFile(link, 'link-lists/allrecipies_' + str(index) + '.txt')
+        addLinksToFile()
+        showProgress(index, pageNumber)
         pageNumber = pageNumber + 1
         response = requests.get('https://www.allrecipes.com/recipes/76/appetizers-and-snacks/' + '?page=' + str(pageNumber))
 
-print(links)
-print(len(links))
+print("Done")
