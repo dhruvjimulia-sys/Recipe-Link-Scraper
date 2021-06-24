@@ -36,18 +36,18 @@ def addLinksToFile():
         for link in links:
             file.write(link + ' \n')
 
-def showProgress(index, pageNumber):
-    print(index, pageNumber, len(links))
+def showProgress(index, pageNumber_):
+    print(index, pageNumber_, len(links))
     with open('link-lists/allrecipies_progress.txt', 'w') as file:
-        file.write(f"{index} {pageNumber}")
+        file.write(f"{index} {pageNumber_}")
 
 def readProgress():    
     with open('link-lists/allrecipies_progress.txt', 'r') as file:
         progress_string = file.read()
         progress_list = progress_string.split()
         index = int(progress_list[0])
-        pageNumber = int(progress_list[1])
-        return [index, pageNumber]
+        pageNumber_ = int(progress_list[1])
+        return [index, pageNumber_]
 
 def extractFirstPage(category_link):
     html_text = requests.get(category_link, headers=headers).text
@@ -67,12 +67,11 @@ def extractFirstPage(category_link):
 progress = readProgress()
 startIndex = progress[0]
 startPageNumber = progress[1]
+pageNumber = startPageNumber
 
 for index, category_link in enumerate(categories):
     if (index < startIndex):
         continue
-
-    pageNumber = startPageNumber
 
     if (pageNumber == 1):
         extractFirstPage(category_link)
@@ -80,7 +79,7 @@ for index, category_link in enumerate(categories):
         showProgress(index, pageNumber)
         pageNumber = 2
 
-    response = requests.get('https://www.allrecipes.com/recipes/76/appetizers-and-snacks/' + '?page=' + str(pageNumber))
+    response = requests.get(category_link + '?page=' + str(pageNumber))
     while response.status_code == 200:
         html_text = response.text
         soup = BeautifulSoup(html_text, 'lxml')
@@ -91,6 +90,7 @@ for index, category_link in enumerate(categories):
         addLinksToFile()
         showProgress(index, pageNumber)
         pageNumber = pageNumber + 1
-        response = requests.get('https://www.allrecipes.com/recipes/76/appetizers-and-snacks/' + '?page=' + str(pageNumber))
+        response = requests.get(category_link + '?page=' + str(pageNumber))
+    pageNumber = 1
 
 print("Done")
