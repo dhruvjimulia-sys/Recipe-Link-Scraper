@@ -22,53 +22,43 @@ categories = [
 'https://www.allrecipes.com/recipes/86/world-cuisine/'
 ]
 
+def addLinkToFile(link, filename):
+    with open(filename, 'a') as f:
+        f.write(link + ' \n')
+
 links = set()
 
-for category_link in range(1):
-    html_text = requests.get('https://www.allrecipes.com/recipes/76/appetizers-and-snacks/').text
+for index, category_link in enumerate(categories):
+    print(1, len(links))
+    html_text = requests.get(category_link).text
     soup = BeautifulSoup(html_text, 'lxml')
     outerDiv = soup.find_all('div', class_='card__imageContainer')
     for div in outerDiv: 
         link = div.find('a', class_='card__titleLink manual-link-behavior')['href']
         if link.find("/recipe/") != -1:
-            print(link)
+            addLinkToFile(link, 'link-lists/allrecipies_' + str(index) + '.txt')
             links.add(link)
 
     outerDiv2 = soup.find_all('div', class_='category-page-item-content-wrapper')
     for div in outerDiv2:
         link = div.find('a', class_='category-page-item-image-text')['href']
         if link.find("/recipe/") != -1:
-            print(link)
+            addLinkToFile(link, 'link-lists/allrecipies_' + str(index) + '.txt')
             links.add(link)
 
     pageNumber = 2
     response = requests.get('https://www.allrecipes.com/recipes/76/appetizers-and-snacks/' + '?page=' + str(pageNumber))
     while response.status_code == 200:
-        print(pageNumber)
+        print(pageNumber, len(links))
         html_text = response.text
         soup = BeautifulSoup(html_text, 'lxml')
         allLinks = soup.find_all('a', class_='tout__imageLink')
         for aTag in allLinks:
-            link = aTag['href']
+            link = 'https://www.allrecipes.com/' + aTag['href']
             links.add(link)
-            print(link)
+            addLinkToFile(link, 'link-lists/allrecipies_' + str(index) + '.txt')
         pageNumber = pageNumber + 1
         response = requests.get('https://www.allrecipes.com/recipes/76/appetizers-and-snacks/' + '?page=' + str(pageNumber))
 
 print(links)
 print(len(links))
-
-def extractFirstPage(soup):
-    outerDiv = soup.find_all('div', class_='card__imageContainer')
-    for div in outerDiv: 
-        link = div.find('a', class_='card__titleLink manual-link-behavior')['href']
-        if link.find("/recipe/") != -1:
-            print(link)
-            links.add(link)
-
-    outerDiv2 = soup.find_all('div', class_='category-page-item-content-wrapper')
-    for div in outerDiv2:
-        link = div.find('a', class_='category-page-item-image-text')['href']
-        if link.find("/recipe/") != -1:
-            print(link)
-            links.add(link)
