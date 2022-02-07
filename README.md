@@ -1,12 +1,16 @@
-# Recipe-Link-Scraper
+# Recipe Scraper
 
-Python Script Which Extracts All Recipe Links from Popular Recipe Websites
+Reciper Scraper is a Python script which extracts recipe links from popular recipe wedsites like AllRecipes, FoodNetwork and Food.com.
+This can be used to create a databas of recipes, which can be useful for many food-based applications.
 
-This project requires the BeautifulSoup Library and LXML HTML Parser.
-In order to install these dependencies, execute the following commands on the command line:
+## Prequisites
 
-`pip install beautifulsoup4`
+In order to run this project, you need to install Python. This can be installed by following the instructions on the following webpage.
 
-`pip install lxml`
+https://www.python.org/downloads/
 
-`pip install requests`
+Furthermore, this project depends on many pip packages like BeautifulSoup and LXML. To install these packages, activate a Python virtual environment and execute the following command in the project directory.
+
+```
+$ pip install -r requirements.txt
+```
