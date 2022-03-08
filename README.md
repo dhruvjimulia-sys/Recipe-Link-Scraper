@@ -1,7 +1,7 @@
 # Recipe Scraper
 
 Reciper Scraper is a Python script which extracts recipe links from popular recipe wedsites like AllRecipes, FoodNetwork and Food.com.
-This can be used to create a databas of recipes, which can be useful for many food-based applications.
+This can be used to create a database of recipes, which can be useful for many food-based applications.
 
 ## Prequisites
 
